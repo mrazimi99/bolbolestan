@@ -1,7 +1,2 @@
-git submodule sync --recursive
-git submodule update --init --recursive
-cd bolbolestan-backend
-git pull origin master
-cd ../bolbolestan-frontend/
-git pull origin master
-cd ..
+git clone https://mrazimi99@gitlab.com/mrazimi99/bolbolestan-backend.git
+git clone https://mrazimi99@gitlab.com/mrazimi99/bolbolestan-frontend.git
