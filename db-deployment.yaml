@@ -1,31 +1,3 @@
-apiVersion: v1
-kind: PersistentVolumeClaim        # Create a PersistentVolumeClaim to request a PersistentVolume storage
-metadata:                          # Claim name and labels
-  name: mysql-pvc
-  labels:
-    app: bolbolestan-mysql
-spec:                              # Access mode and resource limits
-  storageClassName: hiops          # Request a certain storage class
-  volumeMode: FileSystem        
-  accessModes:
-    - ReadWriteOnce                # ReadWriteOnce means the volume can be mounted as read-write by a single Node
-  resources:
-    requests:
-      storage: 2000M
----
-apiVersion: v1                    # API version
-kind: Service                     # Type of kubernetes resource
-metadata:
-  name: bolbolestan-mysql         # Name of the resource
-  labels:                         # Labels that will be applied to the resource
-    app: bolbolestan-mysql
-spec:
-  ports:
-    - port: 3306
-  selector:                       # Selects any Pod with labels `app=bolbolestan-mysql`
-    app: bolbolestan-mysql
-  clusterIP: None
----
 apiVersion: apps/v1
 kind: Deployment                    # Type of the kubernetes resource
 metadata:
@@ -38,7 +10,8 @@ spec:
       app: bolbolestan-mysql
       tier: mysql
   strategy:
-    type: Recreate
+    rollingUpdate:
+      maxUnavailable: 1
   template:                         # Template for the Pods in this deployment
     metadata:
       labels:                       # Labels to be applied to the Pods in this deployment
@@ -46,7 +19,7 @@ spec:
         tier: mysql
     spec:                           # The spec for the containers that will be run inside the Pods in this deployment
       containers:
-          - image: "https://quay.io/repository/mrazimi99/mysql"                   # The container image
+        - image: "quay.io/mrazimi99/mysql:latest"                   # The container image
           name: mysql
           env:                        # Environment variables passed to the container
             - name: "MYSQL_ROOT_PASSWORD"
@@ -67,4 +40,3 @@ spec:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
-
